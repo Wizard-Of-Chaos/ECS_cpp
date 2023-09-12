@@ -37,11 +37,24 @@ bool Scene::entityInUse(EntityId cachedId) {
 	} return false;
 }
 
-void parentUpdate(Scene& scene)
+void SceneManager::update(float dt, float frameDelta)
 {
-	for (auto id : SceneView<ParentComponent>(scene)) {
-		auto parent = scene.get<ParentComponent>(id);
-		if (!scene.entityInUse(parent->parentId)) {
+	m_parentUpdate_internal();
+	m_updateFunc(dt, frameDelta, m_scene);
+}
+
+void SceneManager::clearScene()
+{
+	for (ComponentPool* pool : m_scene.componentPools) {
+		delete pool; //pool's closed.
+	}
+}
+
+void SceneManager::m_parentUpdate_internal()
+{
+	for (auto id : SceneView<ParentComponent>(m_scene)) {
+		auto parent = m_scene.get<ParentComponent>(id);
+		if (!m_scene.entityInUse(parent->parentId)) {
 			parent->parentId = INVALID_ENTITY;
 		}
 	}

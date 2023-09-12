@@ -186,6 +186,25 @@ struct ParentComponent
 	EntityId parentId;
 };
 
-void parentUpdate(Scene& scene);
+#include <functional>
+
+typedef std::function<void(float, float, Scene&)> smgrUpdateFunction;
+
+void m_defaultUpdateFunc(float dt, float frameDelta, Scene& scene) {
+	//do nothing
+}
+
+class SceneManager {
+	public:
+		SceneManager() : m_scene(Scene()), m_updateFunc(m_defaultUpdateFunc) {}
+		SceneManager(Scene scene = Scene(), smgrUpdateFunction func= m_defaultUpdateFunc) : m_scene(scene), m_updateFunc(func) {}
+		void setUpdateFunction(smgrUpdateFunction func) { func = m_updateFunc; }
+		void update(float dt, float frameDelta);
+		void clearScene();
+	private:
+		void m_parentUpdate_internal();
+		smgrUpdateFunction m_updateFunc;
+		Scene m_scene;
+};
 
 #endif
